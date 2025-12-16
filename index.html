@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>May Fair Fast Food — Online Ordering</title>
+  <meta name="description" content="May Fair Fast Food - Order hot meals online. Located at Manyanja-Umoja Road, Manyanja Business Center." />
+  <link rel="icon" href="data:;base64,iVBORw0KGgo="> 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ---- Base / Utility ---- */
+    :root{
+      /* MODIFIED: BRAND COLOR REMAINS BRIGHT RED, HEADER/FOOTER WILL USE DEEP RED */
+      --brand:#ff5a1f; /* Bright Orange/Red for buttons/accents */
+      --deep-red:#9e0000; /* Deep Red for Header/Footer Backgrounds */
+      --accent:#ffd6bf;
+      --muted:#6b6b6b;
+      --bg:#f7f6f4;
+      --card:#ffffff;
+      --glass: rgba(255,255,255,0.6);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin: 0;
+      font-family: Arial;
+      background: #b71c1c; /* solid red */
+      color: #fff; /* White text for contrast on red background */
+    }
+    a{color:inherit;text-decoration:none}
+
+    /* ---- Layout ---- */
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:20px 32px;
+      /* MODIFIED: SOLID DEEP RED BACKGROUND */
+      background:var(--deep-red);
+      backdrop-filter: blur(0); /* Remove blur effect */
+      position:sticky;
+      top:0;
+      z-index:50;
+      color: white; /* Ensure header text is white */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .brand{display:flex;gap:14px;align-items:center}
+    /* MODIFIED: Updated .logo for image */
+    .logo-img{
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        object-fit: cover;
+        box-shadow: 0 6px 18px rgba(255,90,31,0.18);
+        background: white; /* Add white background for contrast if logo has transparent parts */
+        padding: 4px; /* small padding for image */
+    }
+    .brand h1{margin:0;font-size:18px}
+    /* MODIFIED: Make location text white for header visibility */
+    .location{font-size:12px;color:white} 
+
+    .controls{display:flex;gap:12px;align-items:center}
+    .search{display:flex;align-items:center;background:var(--card);padding:8px 12px;border-radius:10px;gap:8px;box-shadow:0 6px 18px rgba(11,16,24,0.04)}
+    .search input{border:0;outline:none;font-size:14px;background:transparent}
+    .btn{background:var(--brand);color:white;padding:10px 14px;border-radius:10px;border:0;font-weight:600;cursor:pointer}
+    .btn.secondary{background:#333;color:white;} /* New secondary button style */
+
+    main{max-width:1200px;margin:28px auto;padding:0 20px}
+    /* MODIFIED: Set card colors to contrast with the red background */
+    .hero-card{background:var(--card);padding:28px;border-radius:18px;box-shadow:0 10px 30px rgba(11,16,24,0.06);color:var(--muted)}
+    .hero h2{margin:0 0 8px 0;font-size:28px;color:#333}
+    .hero p{margin:0;color:#666}
+    .cta-row{display:flex;gap:12px;margin-top:18px}
+    
+    /* MODIFIED: Ensure buttons inside hero have the right color scheme */
+    #viewCartSmall{
+      background:#fff !important;
+      color:var(--brand) !important;
+      border:1px solid rgba(255,90,31,0.14) !important;
+    }
+    
+    /* MODIFIED: Glass effect needs adjustment against deep red */
+    .hero-card > div > div:nth-child(1), .hero-card > div > div:nth-child(2) {
+      background:var(--glass);
+      color: #333; /* Dark text on glass background */
+    }
+
+
+    /* ---- Categories & Products ---- */
+    .catalog{margin-top:26px;display:flex;gap:24px}
+    nav.categories{width:220px;background:linear-gradient(180deg,var(--card),#fff);padding:18px;border-radius:14px;height:fit-content;box-shadow:0 8px 22px rgba(11,16,24,0.04);color:var(--muted)}
+    nav.categories button{display:block;width:100%;text-align:left;padding:10px;border-radius:10px;border:0;background:transparent;cursor:pointer;margin-bottom:8px}
+    nav.categories button.active{background:var(--accent);font-weight:700}
+
+    section.products{flex:1}
+    .filters{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+    .card{
+        background:var(--card);padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 8px 20px rgba(11,16,24,0.05);color:var(--muted);
+        cursor: pointer; /* make entire card clickable */
+    }
+    .card img{width:100%;height:140px;object-fit:cover;border-radius:10px}
+    .card h3{margin:0;font-size:16px;color:#333}
+    .meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+    .card .actions{display:flex;gap:8px;margin-top:auto}
+    .qty-controls{display:flex;align-items:center;justify-content:space-between;width:100%;}
+    .qty-controls button{border:1px solid #eee;border-radius:8px;padding:6px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--bg)}
+    .qty-controls .count {font-weight: 700; color: var(--brand);}
+    .card .add-btn-simple {width:100%;}
+
+    /* ---- Cart ---- */
+    .cart{position:fixed;right:20px;top:100px;width:360px;background:linear-gradient(180deg,var(--card),#fff);border-radius:16px;padding:16px;box-shadow:0 18px 50px rgba(11,16,24,0.12);max-height:70vh;overflow:auto;color:var(--muted)}
+    .cart h4{margin:0 0 8px 0;color:#333}
+    .cart .item{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed #eee}
+    .cart .item:last-child{border-bottom:0}
+    .cart .summary-line{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:#333;}
+    .cart .total{display:flex;justify-content:space-between;padding-top:12px;font-weight:700;border-top:2px solid var(--accent);margin-top:8px;}
+
+    /* ---- Location Map (NEW CSS) ---- */
+    .location-map {
+        margin-top: 40px;
+        padding: 28px;
+        background: var(--card); /* White card background */
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        color: #333; /* Dark text on card */
+    }
+    .location-map h2 {
+        font-size: 24px;
+        margin-top: 0;
+        color: var(--deep-red);
+    }
+    .location-map p {
+        margin-bottom: 20px;
+        color: var(--muted);
+    }
+    .map-container {
+        overflow: hidden;
+        border-radius: 12px;
+        border: 3px solid var(--accent);
+    }
+    .map-container iframe {
+        display: block;
+    }
+
+    /* ---- Footer ---- */
+    footer{
+      margin-top:40px;
+      padding:28px;
+      /* MODIFIED: SOLID DEEP RED BACKGROUND */
+      background:var(--deep-red); 
+      border-top:1px solid #eee;
+      color: white; /* Ensure footer text is white */
+    }
+    footer div{
+        color: white !important; /* Override muted color for the text */
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr}
+      .cart{position:fixed;right:12px;top:auto;bottom:12px;width:92%;max-width:520px}
+      nav.categories{display:flex;overflow:auto;width:100%}
+      .catalog{flex-direction:column}
+    }
+
+    /* ---- Micro-interactions ---- */
+    .pulse{animation:pulse 2.6s infinite}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+    /* ---- Modal Styles (For both Checkout and Quick View) ---- */
+    .modal{position:fixed;inset:0;background:rgba(10,12,14,0.45);display:none;align-items:center;justify-content:center;padding:20px;z-index: 1000;}
+    .modal.open{display:flex}
+    .modal .panel{background:var(--card);padding:18px;border-radius:12px;max-width:600px;width:100%;color:#333;position:relative;}
+    .modal .close-btn {position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--muted);}
+
+    /* Quick View specific styles */
+    #quickViewContent {display: flex; gap: 20px;}
+    #quickViewContent img {width: 50%; height: 250px; object-fit: cover; border-radius: 8px;}
+    .qv-details {width: 50%;}
+    .qv-price {font-size: 24px; font-weight: 700; color: var(--brand); margin: 10px 0;}
+    .qv-tags {font-size: 13px; color: var(--brand);}
+    .qv-qty-controls {display:flex; gap: 10px; align-items: center; margin: 15px 0;}
+    .qv-qty-controls input {width: 60px; text-align: center;}
+    
+    /* MODIFIED: Ensure input fields are readable against the red body background */
+    input, select {
+        border: 1px solid #ccc;
+        padding: 8px 10px;
+        border-radius: 6px;
+        width: 100%;
+    }
+    
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="c:\Users\user\Desktop\may fair\WhatsApp Image 2024-12-10 at 12.12.31 PM.jpeg" alt="May Fair Fast Food Logo" class="logo-img">
+      <div>
+        <h1>May Fair Fast Food</h1>
+        <div class="location">Manyanja-Umoja Road, Manyanja Business Center — Orders: Delivery & Pickup</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="#999" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="#999" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <input id="searchInput" placeholder="Search meals, e.g. 'burger'" />
+      </div>
+      <button class="btn" id="openMenu">Menu</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="hero-card">
+        <h2>Fresh. Fast. Local.</h2>
+        <p>Order your favourite meals from May Fair Fast Food — freshly prepared and delivered across Manyanja.
+        Choose from Burgers, Pizzas, Kenyan plates, Drinks and Desserts. Secure online payment or pay on delivery.</p>
+
+        <div class="cta-row">
+          <button class="btn" id="orderNow">Order Now</button>
+          <button class="btn" id="viewCartSmall" style="background:#fff;color:var(--brand);border:1px solid rgba(255,90,31,0.14)">View Cart</button>
+        </div>
+
+        <div style="margin-top:18px;display:flex;gap:10px;align-items:center">
+          <div style="background:var(--glass);padding:8px 10px;border-radius:10px;">Open: 9:00 — 22:00</div>
+          <div style="background:var(--glass);padding:8px 10px;border-radius:10px;">Delivery: Within Manyanja</div>
+        </div>
+      </div>
+
+      <div class="hero-card pulse">
+        <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?q=80&w=900&auto=format&fit=crop&ixlib=rb-4.0.3&s=6c9b9f0c7b7ee9c3b1a2f0d5b6f7a8c0" alt="hero" style="border-radius:12px;width:100%;height:260px;object-fit:cover">
+      </div>
+    </div>
+
+    <div class="catalog">
+      <nav class="categories" id="categoryList">
+        </nav>
+
+      <section class="products">
+        <div class="filters">
+          <select id="sortBy">
+            <option value="popular">Sort: Popular</option>
+            <option value="price_low">Price: Low → High</option>
+            <option value="price_high">Price: High → Low</option>
+          </select>
+
+          <select id="filterType">
+            <option value="all">All</option>
+            <option value="veg">Vegetarian</option>
+            <option value="spicy">Spicy</option>
+          </select>
+
+          <div style="margin-left:auto;color:var(--muted);font-size:13px">Secure checkout • KES prices</div>
+        </div>
+
+        <div class="grid" id="productsGrid">
+          </div>
+      </section>
+    </div>
+
+    <section class="location-map">
+        <h2>Find Us on the Map</h2>
+        <p>We are conveniently located in the Manyanja Business Center. See our exact location below.</p>
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8173111976375!2d36.9020157!3d-1.2834801999999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1315a0a5a117%3A0xecb29d326be849de!2sManyanja%20Business%20Centre!5e0!3m2!1sen!2ske!4v1764660094611!5m2!1sen!2ske" width="800" height="600" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </section>
+
+    <footer>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <strong>May Fair Fast Food</strong><div style="color:white;font-size:13px">Manyanja-Umoja Road, Manyanja Business Center • Contact: 0741112206</div>
+        </div>
+        <div style="color:white;font-size:13px">© May Fair Fast Food — Built for online orders</div>
+      </div>
+    </footer>
+  </main>
+
+  <aside class="cart" id="cart">
+    <h4>Your order</h4>
+    <div id="cartItems"></div>
+    <div class="summary-line"><span>Subtotal</span><span id="subtotal">KES 0</span></div>
+    <div class="summary-line"><span>Delivery (<span id="deliveryOptionText">Delivery</span>)</span><span id="deliveryFee">KES 100</span></div>
+    <div class="summary-line"><span>VAT (16% on Subtotal)</span><span id="vatAmount">KES 0</span></div>
+
+    <div class="total"><span>Grand Total</span><span id="grandTotal">KES 0</span></div>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="btn" id="checkoutBtn" style="flex:1">Checkout</button>
+      <button id="clearCart" style="flex:0;padding:10px;border-radius:10px;border:1px solid #eee;background:transparent">Clear</button>
+    </div>
+  </aside>
+
+  <div class="modal" id="checkoutModal">
+    <div class="panel">
+      <span class="close-btn" onclick="closeModal('checkoutModal')">&times;</span>
+      <h3>Checkout</h3>
+      <p style="margin:6px 0;color:var(--muted)">Enter details and payment method. (This demo simulates a payment.)</p>
+
+      <form id="checkoutForm">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <input name="name" placeholder="Full name" required />
+          <input name="phone" placeholder="Phone (074... )" required />
+          <input name="address" id="deliveryAddress" placeholder="Delivery address" required style="grid-column:1/3" />
+        </div>
+
+        <div style="margin-top:10px; display:flex; gap: 10px;">
+            <div style="flex: 1;">
+              <label style="display:block;margin-bottom:6px">Order Type</label>
+              <select name="orderType" id="orderType" onchange="state.orderType=this.value; renderCart();">
+                <option value="delivery">Delivery (KES 100)</option>
+                <option value="pickup">Local Pickup (Free)</option>
+              </select>
+            </div>
+            <div style="flex: 1;">
+              <label style="display:block;margin-bottom:6px">Payment Method</label>
+              <select name="payment">
+                <option value="card">Pay with card (simulated)</option>
+                <option value="mpesa">M-Pesa (simulate)</option>
+                <option value="cod">Cash on Delivery</option>
+              </select>
+            </div>
+        </div>
+        
+        <p class="total" style="border:none; margin-top: 15px;">Grand Total: <span id="checkoutGrandTotal">KES 0</span></p>
+
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn" type="submit">Place order</button>
+          <button type="button" onclick="closeModal('checkoutModal')" style="padding:10px;border-radius:10px;border:1px solid #eee;background:transparent">Cancel</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+  
+  <div class="modal" id="quickViewModal">
+    <div class="panel">
+      <span class="close-btn" onclick="closeModal('quickViewModal')">&times;</span>
+      <h3>Quick View: <span id="qvName"></span></h3>
+      
+      <div id="quickViewContent">
+        <img id="qvImage" src="" alt="Product Image">
+        <div class="qv-details">
+          <p class="qv-price" id="qvPrice"></p>
+          <p id="qvTags" class="qv-tags"></p>
+          <p id="qvDescription" style="margin-top: 10px; color: #666;">A delicious fast food item from the May Fair menu.</p>
+          
+          <div class="qv-qty-controls">
+            <label style="font-weight: 700;">Quantity:</label>
+            <button onclick="changeQuickViewQty(-1)">-</button>
+            <input type="number" id="qvQty" value="1" min="1" readonly>
+            <button onclick="changeQuickViewQty(1)">+</button>
+          </div>
+          
+          <button class="btn" id="qvAddToCartBtn" style="width: 100%; margin-top: 15px;">Add <span id="qvQtyTotal">1</span> to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    /* ---------- Demo data ---------- */
+    // Added a simple description field for the Quick View Modal
+    const products = [
+      // BURGERS
+      {id:1,name:'Classic Beef Burger',price:450,cat:'Burgers',tags:['popular'],img:'https://images.unsplash.com/photo-1565299507177-b0ac66763828?auto=format&fit=crop&w=800&q=80', desc:'Juicy beef patty with lettuce, tomato & special sauce'},
+      {id:2,name:'Crispy Chicken Burger',price:420,cat:'Burgers',tags:['popular'],img:'https://images.unsplash.com/photo-1546069901-eacef0df6022?q=80&w=800&auto=format&fit=crop'},
+      {id:10,name:'Double Decker Burger',price:650,cat:'Burgers',tags:[],img:'https://images.unsplash.com/photo-1546069901-eacef0df6022', desc:'Two beef patties, double cheese, double flavor'},
+      {id:11,name:'Mushroom Swiss Burger',price:550,cat:'Burgers',tags:[],img:'https://images.unsplash.com/photo-1551615599-4517c1e2c9bc?auto=format&fit=crop&w=800&q=80', desc:'Sautéed mushrooms with melted Swiss cheese'},
+
+      // PIZZAS
+      {id:3,name:'Margherita Pizza (Medium)',price:780,cat:'Pizzas',tags:['veg'],img:'https://images.unsplash.com/photo-1555939594-58d7cb561ad1', desc:'Fresh mozzarella, tomato sauce & basil'},
+      {id:4,name:'Pepperoni Pizza (Large)',price:1200,cat:'Pizzas',tags:['spicy','popular'],img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&h=200&fit=crop', desc:'Loaded with spicy pepperoni & extra cheese'},
+      {id:12,name:'BBQ Chicken Pizza (Medium)',price:850,cat:'Pizzas',tags:[],img:'https://images.unsplash.com/photo-1605478379861-139f8e7f5d2b?auto=format&fit=crop&w=800&q=80', desc:'Grilled chicken, smoky BBQ sauce & onions'},
+      {id:13,name:'Hawaiian Pizza (Medium)',price:800,cat:'Pizzas',tags:[],img:'https://images.unsplash.com/photo-1571066811602-716837d681de?auto=format&fit=crop&w=800&q=80', desc:'Ham, pineapple & mozzarella'},
+
+      // CHICKEN HUB
+      {id:14,name:'2-Piece Fried Chicken Combo',price:480,cat:'Chicken Hub',tags:['popular'],img:'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=800&q=80', desc:'Crispy fried chicken with chips'},
+      {id:15,name:'Spicy Chicken Wings (6pcs)',price:550,cat:'Chicken Hub',tags:['spicy'],img:'https://images.unsplash.com/photo-1606755456206-b0a30ed8d0be?auto=format&fit=crop&w=800&q=80', desc:'Hot & spicy wings with peri-peri sauce'},
+      {id:16,name:'Chicken Nuggets (10pcs)',price:350,cat:'Chicken Hub',tags:[],img:'https://images.unsplash.com/photo-1562967916-01eec95f2e79?auto=format&fit=crop&w=800&q=80', desc:'Golden crispy chicken nuggets'},
+
+      // KENYAN PLATES
+      {id:5,name:'Kenyan Beef Stew Plate',price:650,cat:'Plates',tags:['popular'],img:'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop', desc:'Tender beef stew with ugali & sukuma wiki'},
+      {id:6,name:'Pilau Plate',price:500,cat:'Plates',tags:['popular'],img:'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=800&q=80', desc:'Aromatic beef pilau with kachumbari'},
+
+      // LIGHT BITES
+      {id:9,name:'Veggie Wrap',price:320,cat:'Light Bites',tags:['veg'],img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80', desc:'Fresh veggies & hummus in tortilla'},
+      {id:17,name:'Classic Fries (Large)',price:200,cat:'Light Bites',tags:['popular','veg'],img:'https://images.unsplash.com/photo-1550547660-d9450f859349'},
+      {id:18,name:'Cheesy Bacon Fries',price:380,cat:'Light Bites',tags:[],img:'https://images.unsplash.com/photo-1626645730804-5b4dd3a94d01?auto=format&fit=crop&w=800&q=80', desc:'Chips loaded with cheese & bacon'},
+      {id:19,name:'Jumbo Sausage Roll',price:150,cat:'Light Bites',tags:[],img:'https://images.unsplash.com/photo-1628169601131-00e97d41f531?auto=format&fit=crop&w=800&q=80', desc:'Hot beef sausage in flaky pastry'},
+
+      // DESSERTS
+      {id:8,name:'Chocolate Cake Slice',price:250,cat:'Desserts',tags:[],img:'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80', desc:'Rich moist chocolate cake'},
+      {id:20,name:'Vanilla Milkshake',price:300,cat:'Desserts',tags:[],img:'https://images.unsplash.com/photo-1577805947697-89e18249d767?auto=format&fit=crop&w=800&q=80', desc:'Creamy thick vanilla shake'},
+      {id:21,name:'Oreo Cookie Sundae',price:350,cat:'Desserts',tags:[],img:'https://images.unsplash.com/photo-1511381769077-953c0d10376e?auto=format&fit=crop&w=800&q=80', desc:'Vanilla ice cream with crushed Oreos'},
+
+      // DRINKS
+      {id:7,name:'Soda (500ml)',price:120,cat:'Drinks',tags:['popular'],img:'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?q=80&w=800&auto=format&fit=crop', desc:'Coke, Fanta, Sprite'},
+      {id:22,name:'Bottled Water (1L)',price:80,cat:'Drinks',tags:[],img:'https://images.unsplash.com/photo-1550293693-189f4b52b34a?auto=format&fit=crop&w=800&q=80', desc:'Pure mineral water'},
+      {id:23,name:'Fresh Mango Juice',price:200,cat:'Drinks',tags:[],img:'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?auto=format&fit=crop&w=800&q=80', desc:'Freshly squeezed mango juice'}
+    ];
+
+    const categories = ['All','Burgers','Pizzas','Chicken Hub','Plates','Light Bites','Desserts','Drinks'];
+    
+    // --- Constants for calculation ---
+    const DELIVERY_FEE_AMOUNT = 150;
+    const VAT_RATE = 0.16; // 16%
+
+    /* ---------- State ---------- */
+    let state = {
+      cart:{},
+      activeCategory:'All',
+      search:'',
+      sort:'popular',
+      filter:'all',
+      orderType: 'delivery', // NEW: 'delivery' or 'pickup'
+      quickViewProductId: null, // NEW: ID of product currently in quick view
+      quickViewQty: 1 // NEW: Quantity selected in quick view
+    }
+
+    /* ---------- Helpers ---------- */
+    const KES = (n)=>'KES '+Number(n).toLocaleString('en-KE', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+    /* ---------- Render UI ---------- */
+    const categoryList = document.getElementById('categoryList');
+    const productsGrid = document.getElementById('productsGrid');
+    const cartEl = document.getElementById('cartItems');
+    const subtotalEl = document.getElementById('subtotal');
+    const deliveryFeeEl = document.getElementById('deliveryFee');
+    const deliveryOptionTextEl = document.getElementById('deliveryOptionText');
+    const vatAmountEl = document.getElementById('vatAmount');
+    const grandTotalEl = document.getElementById('grandTotal');
+    const checkoutGrandTotalEl = document.getElementById('checkoutGrandTotal');
+    const deliveryAddressInput = document.getElementById('deliveryAddress');
+
+
+    function renderCategories(){
+      categoryList.innerHTML='';
+      categories.forEach(cat=>{
+        const btn = document.createElement('button');
+        btn.textContent = cat;
+        btn.className = (cat===state.activeCategory)?'active':'';
+        btn.onclick = ()=>{state.activeCategory = cat; renderProducts(); renderCategories()};
+        categoryList.appendChild(btn);
+      })
+    }
+
+    function filterProducts(){
+      return products.filter(p=>{
+        if(state.activeCategory!=='All' && p.cat!==state.activeCategory) return false;
+        if(state.filter==='veg' && !p.tags.includes('veg')) return false;
+        if(state.filter==='spicy' && !p.tags.includes('spicy')) return false;
+        if(state.search && !p.name.toLowerCase().includes(state.search.toLowerCase())) return false;
+        return true;
+      }).sort((a,b)=>{
+        if(state.sort==='price_low') return a.price-b.price;
+        if(state.sort==='price_high') return b.price-a.price;
+        // Check for 'popular' tag for sorting
+        if(state.sort==='popular') {
+            const aPop = a.tags.includes('popular');
+            const bPop = b.tags.includes('popular');
+            if (aPop && !bPop) return -1;
+            if (!aPop && bPop) return 1;
+        }
+        return a.id-b.id; // Default sort by ID (maintains order)
+      })
+    }
+    
+    function getProductCurrentQty(productId) {
+        return state.cart[productId] || 0;
+    }
+
+    function renderProducts(){
+      const list = filterProducts();
+      productsGrid.innerHTML='';
+      if(!list.length){productsGrid.innerHTML='<div style="color:var(--muted)">No items found</div>';return}
+      list.forEach(p=>{
+        const card = document.createElement('div');
+        card.className='card';
+        card.dataset.id = p.id;
+        
+        // Use event delegation for the main card click (Quick View)
+        card.onclick = (e) => {
+             // Don't open quick view if a button was clicked
+            if (!e.target.closest('button')) {
+                openQuickView(p.id);
+            }
+        }; 
+
+        const currentQty = getProductCurrentQty(p.id);
+
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" loading="lazy">
+          <h3>${p.name}</h3>
+          <div class="meta"><div>${p.cat}</div><div>${KES(p.price)}</div></div>
+          <div class="actions">
+            <div class="qty-controls">
+                <button data-id="${p.id}" class="minusBtn" ${currentQty === 0 ? 'disabled' : ''}>-</button>
+                <span data-id="${p.id}" class="count">${currentQty}</span>
+                <button data-id="${p.id}" class="plusBtn">+</button>
+            </div>
+            </div>
+        `;
+        productsGrid.appendChild(card);
+      })
+      
+      // Attach handlers for new quantity controls
+      document.querySelectorAll('.qty-controls .plusBtn').forEach(btn => btn.onclick = (e) => {
+          e.stopPropagation(); // Prevent Quick View from opening
+          changeQty(Number(btn.dataset.id), 1);
+      });
+      document.querySelectorAll('.qty-controls .minusBtn').forEach(btn => btn.onclick = (e) => {
+          e.stopPropagation(); // Prevent Quick View from opening
+          changeQty(Number(btn.dataset.id), -1);
+      });
+    }
+
+    function addToCart(id, qty = 1){
+      if(!state.cart[id]) state.cart[id]=0;
+      state.cart[id] += qty;
+      renderCart();
+      renderProducts(); // Refresh grid to show new qty
+    }
+
+    function removeFromCart(id){
+      delete state.cart[id];
+      renderCart();
+      renderProducts(); // Refresh grid
+    }
+
+    function changeQty(id,delta){
+      state.cart[id] = (state.cart[id]||0)+delta;
+      if(state.cart[id] <= 0) removeFromCart(id);
+      renderCart();
+      renderProducts(); // Refresh grid to show new qty
+    }
+    
+    function calculateTotals() {
+        let subtotal = 0;
+        Object.keys(state.cart).forEach(id => {
+            const p = products.find(x => x.id == id);
+            subtotal += p.price * state.cart[id];
+        });
+
+        const vatAmount = subtotal * VAT_RATE;
+        const deliveryFee = state.orderType === 'delivery' ? DELIVERY_FEE_AMOUNT : 0;
+        const grandTotal = subtotal + vatAmount + deliveryFee;
+        
+        return { subtotal, vatAmount, deliveryFee, grandTotal };
+    }
+
+
+    function renderCart(){
+      cartEl.innerHTML='';
+      const ids = Object.keys(state.cart).map(Number);
+      const { subtotal, vatAmount, deliveryFee, grandTotal } = calculateTotals();
+
+      if(!ids.length){
+        cartEl.innerHTML='<div style="color:var(--muted);">Your cart is empty. Add tasty food!</div>';
+        subtotalEl.textContent = KES(0);
+        deliveryFeeEl.textContent = KES(0);
+        deliveryOptionTextEl.textContent = state.orderType === 'delivery' ? 'Delivery' : 'Pickup';
+        vatAmountEl.textContent = KES(0);
+        grandTotalEl.textContent = KES(0);
+        checkoutGrandTotalEl.textContent = KES(0);
+        document.getElementById('checkoutBtn').disabled = true;
+        document.getElementById('checkoutBtn').classList.add('btn', 'secondary');
+        return
+      }
+      
+      document.getElementById('checkoutBtn').disabled = false;
+      document.getElementById('checkoutBtn').classList.remove('secondary');
+
+
+      ids.forEach(id=>{
+        const p = products.find(x=>x.id===id);
+        const qty = state.cart[id];
+        const item = document.createElement('div');item.className='item';
+        item.innerHTML = `
+          <img src="${p.img}" style="width:64px;height:48px;border-radius:8px;object-fit:cover">
+          <div style="flex:1">
+            <div style="font-weight:700">${p.name}</div>
+            <div style="font-size:13px;color:var(--muted)">${KES(p.price)} • Qty: ${qty}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <div style="font-weight:700">${KES(p.price*qty)}</div>
+            <div style="display:flex;gap:6px">
+              <button onclick="changeQty(${id},-1)" style="padding:6px;border-radius:8px;border:1px solid #eee">−</button>
+              <button onclick="changeQty(${id},1)" style="padding:6px;border-radius:8px;border:1px solid #eee">+</button>
+              <button onclick="removeFromCart(${id})" style="padding:6px;border-radius:8px;border:1px solid #f6d">🗑</button>
+            </div>
+          </div>
+        `;
+        cartEl.appendChild(item);
+      })
+      
+      // Update Summary
+      subtotalEl.textContent = KES(subtotal);
+      deliveryFeeEl.textContent = KES(deliveryFee);
+      deliveryOptionTextEl.textContent = state.orderType === 'delivery' ? 'Delivery' : 'Pickup';
+      vatAmountEl.textContent = KES(vatAmount);
+      grandTotalEl.textContent = KES(grandTotal);
+      checkoutGrandTotalEl.textContent = KES(grandTotal);
+
+      // Sync checkout modal order type dropdown
+      const orderTypeSelect = document.getElementById('orderType');
+      if (orderTypeSelect.value !== state.orderType) {
+          orderTypeSelect.value = state.orderType;
+      }
+      
+      // Handle address visibility based on order type
+      if (state.orderType === 'pickup') {
+          deliveryAddressInput.parentNode.style.display = 'none';
+          deliveryAddressInput.required = false;
+      } else {
+          deliveryAddressInput.parentNode.style.display = 'block';
+          deliveryAddressInput.required = true;
+      }
+
+    }
+    
+    /* ---------- Quick View Modal Logic (NEW FEATURE) ---------- */
+    function openQuickView(productId) {
+        const product = products.find(p => p.id === productId);
+        if (!product) return;
+        
+        state.quickViewProductId = productId;
+        state.quickViewQty = 1;
+
+        document.getElementById('qvName').textContent = product.name;
+        document.getElementById('qvImage').src = product.img;
+        document.getElementById('qvPrice').textContent = KES(product.price);
+        document.getElementById('qvTags').textContent = product.tags.join(', ');
+        document.getElementById('qvDescription').textContent = product.desc;
+        document.getElementById('qvQty').value = state.quickViewQty;
+        document.getElementById('qvQtyTotal').textContent = state.quickViewQty;
+        
+        // Remove previous listener to prevent double adding
+        const oldBtn = document.getElementById('qvAddToCartBtn');
+        const newBtn = oldBtn.cloneNode(true);
+        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+
+        newBtn.onclick = () => {
+            addToCart(state.quickViewProductId, state.quickViewQty);
+            closeModal('quickViewModal');
+            // Flash a success message
+            const currentCount = getProductCurrentQty(state.quickViewProductId);
+            // This is handled by renderProducts in addToCart, but setting it here doesn't hurt
+            document.querySelector(`.card[data-id="${state.quickViewProductId}"] .count`).textContent = currentCount;
+        };
+
+        document.getElementById('quickViewModal').classList.add('open');
+    }
+
+    function changeQuickViewQty(delta) {
+        let newQty = state.quickViewQty + delta;
+        if (newQty < 1) newQty = 1;
+        state.quickViewQty = newQty;
+        
+        document.getElementById('qvQty').value = newQty;
+        document.getElementById('qvQtyTotal').textContent = newQty;
+    }
+    
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+    }
+
+
+    /* ---------- Checkout simulation (Modified to use Grand Total) ---------- */
+    const checkoutModal = document.getElementById('checkoutModal');
+    document.getElementById('checkoutBtn').onclick = ()=>{
+      if(Object.keys(state.cart).length===0){alert('Your cart is empty. Add items before checkout.');return}
+      document.getElementById('orderType').value = state.orderType; // Sync select box
+      renderCart(); // Recalculate totals before opening
+      checkoutModal.classList.add('open');
+    }
+    
+    // Original clear cart is still needed
+    document.getElementById('clearCart').onclick = ()=>{if(confirm('Clear cart?')){state.cart={};renderCart();renderProducts();}}
+
+    document.getElementById('checkoutForm').onsubmit = function(e){
+      e.preventDefault();
+      
+      const { grandTotal } = calculateTotals();
+
+      // Simple validation
+      const fd = new FormData(this);
+      const name = fd.get('name');
+      const phone = fd.get('phone');
+      const address = fd.get('address');
+      const payment = fd.get('payment');
+      
+      if(state.orderType === 'delivery' && !address) {
+          alert('Delivery address is required for delivery orders.');
+          return;
+      }
+      
+      const order = {
+        id: 'ORD'+Date.now(),
+        name,phone,address,payment,items:state.cart,
+        orderType: state.orderType,
+        total: grandTotal
+      }
+      
+      // Simulate server processing and payment
+      closeModal('checkoutModal');
+      state.cart = {};
+      renderCart();
+      renderProducts();
+      
+      alert(
+          'Order Placed! ✅' +
+          '\nOrder ID: '+order.id+ 
+          '\nOrder Type: ' + (order.orderType === 'delivery' ? 'Delivery' : 'Local Pickup') +
+          '\nTotal: '+KES(order.total) +
+          '\nPayment ' + (payment==='cod'?'method set to Cash on Delivery':'processed (simulated)') +
+          "\nWe will contact you on " + phone
+      );
+    }
+
+    /* ---------- UI Controls ---------- */
+    document.getElementById('orderNow').onclick = ()=>{
+      document.getElementById('categoryList').querySelector('button')?.click();
+      window.scrollTo({top:400,behavior:'smooth'});
+    }
+    document.getElementById('viewCartSmall').onclick = ()=>{document.getElementById('cart').scrollIntoView({behavior:'smooth'})}
+    document.getElementById('openMenu').onclick = ()=>{document.getElementById('categoryList').querySelector('button')?.click();window.scrollTo({top:400,behavior:'smooth'})}
+
+    document.getElementById('searchInput').addEventListener('input',e=>{state.search=e.target.value;renderProducts();});
+    document.getElementById('sortBy').addEventListener('change',e=>{state.sort=e.target.value;renderProducts()});
+    document.getElementById('filterType').addEventListener('change',e=>{state.filter=e.target.value;renderProducts()});
+    
+
+    /* ---------- Init ---------- */
+    document.getElementById('orderType').value = state.orderType; // Initial sync
+    renderCategories();
+    renderProducts();
+    renderCart();
+
+    // expose helpers for inline onclick
+    window.changeQty = changeQty; window.removeFromCart = removeFromCart;
+    window.closeModal = closeModal; // Expose new modal function
+    window.changeQuickViewQty = changeQuickViewQty; // Expose new quick view function
+  </script>
+</body>
+</html>
